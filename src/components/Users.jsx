@@ -1,39 +1,41 @@
 import React, {useState, useEffect } from 'react';
+import axios from 'axios';
 import Card from './Card';
 
 const Users = () =>{
 
     const [age, setAge] = useState(18); 
-    const [count, setCount] = useState(0); 
-    
-    const changeAgeHandler = () =>{
-        setAge(age+1);
-    }
+    const [name, setName] = useState(null); 
+    const [list, setList] = useState([])
 
-    
-    const changeVarHandler = () =>{
-        setCount(20);
-    }
 
     useEffect(()=>{
-        //body
-        console.log("HI.. useEffect");
-    },[count]);
+        axios.get(`http://localhost:9000/user`).then((response)=>{
+            setList(response.data);
+        }).catch(error => {
+            console.log(error)
+          });
+    },[])
+
+    const List = list.map((item, idx) => {
+        return <Card key={idx} name={item.name} age={item.age} />
+    });
+    
+   const addListHandler = () =>{
+    setList( (prevState)=>([
+        ...prevState,
+        {name:name, age:age}
+    ]))
+   }
 
     return (
-        <div className='App'  style={{margin:"40px",color:"blue" }}>
-        
-        <button onClick={changeAgeHandler} >Change Age by +1</button>
-        <button onClick={changeVarHandler} >Change Var</button>
-        
-        <Card name="akshay" Age={age}>
-            <h2>Hi There</h2> 
-        </Card>
-        <br/>
-        <Card name="Anuj" Age="24"/>
-        <br/>
-        <Card name="Sham" Age="20"/>
-    </div>
+        <div  style={{margin:"50px",padding:'20px'}}>  
+            <input type="text" placeholder='Enter Name' name="name" onChange={(event)=>{setName(event.target.value)}}/>                    
+            <input type="number"  name="age" placeholder='Enter Age' onChange={(event)=>{setAge(event.target.value)}}/>  
+            <br/>
+            <button onClick={addListHandler} >Add user to list</button>                              
+            {List}  
+        </div>
     )
 }
 
